@@ -15,7 +15,6 @@ install:
 
 script:
   
-
   - gcloud -q app deploy app.yaml --promote
 
   

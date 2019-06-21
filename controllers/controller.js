@@ -25,8 +25,10 @@ finalObject.getApproved = async function(req,res,next){
 finalObject.postActions = async function(req,res,next){
     try {
         
-        responsedata = [{'message':'Service started'}];
-        res.status(200).json(responsedata);
+        adminService.postActiondata(req.body,function(jsonResponse){
+            res.status(200).json(jsonResponse);
+        });
+        
              
     } catch (error) {
         res.send(error);

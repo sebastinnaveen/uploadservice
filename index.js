@@ -32,6 +32,13 @@ app.use(bodyparser.json({limit: '50mb'}));
 app.use(bodyparser.urlencoded({limit:'50mb', extended: true}));
 app.use(methodOverride('X-HTTP-Method-Override'));
 
+app.use(function(req,res,next){
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
 const specs = swaggerJSDoc(options);
 //const path=require("path");
 var router=express.Router({mergeParams:true});

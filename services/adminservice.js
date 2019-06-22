@@ -34,20 +34,26 @@ module.exports = {
         });
     },
     postActiondata: function(actionPayload,callback){
+
+        console.log("payload"+actionPayload);
         var resp = [];
         var actionDataFb = [];
         var intentPayload ={
             "id":"",
             "name":"Intent11",
             "auto":true,"contexts":[],
-            "responses":[{"resetContexts":false,"affectedContexts":[],"parameters":[],
-            "messages":[{"type":0,"lang":"en","speech":"response 11"}],"defaultResponsePlatforms":{},
-            "speech":[]}],"priority":500000,"webhookUsed":false,"webhookForSlotFilling":false,
+            "responses":[{"resetContexts":false,"action":"","affectedContexts":[],"parameters":[],
+            "messages":[{"type":0,"lang":"en","speech":""}],"defaultResponsePlatforms":{},
+            "speech":[]}],"priority":500000,"webhookUsed":true,"webhookForSlotFilling":false,
             "lastUpdate":1558279995314,"fallbackIntent":false,"events":[],
             "userSays":[{"id":"","data":[{"text":"user message 11","userDefined":false}],"isTemplate":false,
             "count":0,"updated":1558279995316}]
 
         }
+        intentPayload.userSays = actionPayload.intent.usersays;
+        intentPayload.name = actionPayload.intent.intentname;
+        intentPayload.responses[0].action = actionPayload.intent.action;
+
         var config = {
             headers: {
             'Authorization': 'bearer 8d0d9aca83134f21a656282813df0f00',
@@ -56,13 +62,14 @@ module.exports = {
         };
        
         fbService.getData('/config/actions', function(jsonResponse){
-            console.log(jsonResponse);
+            
             if(!jsonResponse)
               callback(resp) ;
 
              actionDataFb = _.clone(jsonResponse);
-            console.log(actionDataFb);
-                actionDataFb.push(actionPayload);
+            
+                actionDataFb.push(actionPayload.action);
+                //console.log(actionDataFb)
                 fbService.deleteData('/config/actions',function(delResp){
                     fbService.insertData('/config/actions',actionDataFb,function(insResp){
 
@@ -76,15 +83,15 @@ module.exports = {
                         
                          
                          //Start Change status to Done
-                         var approvalId =  req.body.approvalId;
+                         var approvalId =  actionPayload.intent.approvalid;
                          fbService.getData('/npwords',function(jsonResponse){
                              if(!jsonResponse)
                                  return null;
                               var npwords = getNpWords(jsonResponse,approvalId);
                                 console.log(npwords)
-                                fbService.deleteData('/npwords',npwords,function(jsonResp){
+                                fbService.deleteData('/npwords',function(jsonResp){
                                  fbService.insertData('/npwords',npwords,function(jsonResp){
-                 
+                                       console.log(jsonResp) 
                                     callback(jsonResp) ;   
                                  });
                                  
@@ -95,7 +102,7 @@ module.exports = {
                          //End 
                     })
                     .catch(function (error) {
-                        console.log(error);
+                       // console.log(error);
                         callback(error) ;   
                     }); 
                         // End create intent
